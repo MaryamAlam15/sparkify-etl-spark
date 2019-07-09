@@ -29,4 +29,4 @@ In this project,
    - run command to install requirements.
         > pip install -r requirements.txt
         
-   - run ``etl.py`` to execute the pipeline to reads data from S3, processes that data using Spark, and write them back to S3.
+   - run ``python etl.py`` to execute the pipeline to reads data from S3, processes that data using Spark, and write them back to S3.
