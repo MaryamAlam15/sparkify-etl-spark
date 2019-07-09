@@ -14,6 +14,10 @@ os.environ['AWS_SECRET_ACCESS_KEY'] = config['AWS']['AWS_SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
+    """
+    creates spark session.
+    :return: spark session.
+    """
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
@@ -22,11 +26,19 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
+    """
+    get songs and artists data from JSON file and make respective DFs.
+    fetches song and artist's attributes from data frame and put them in output json files.
+    :param spark:
+    :param input_data:
+    :param output_data:
+    :return:
+    """
     # get filepath to song data file
     song_data = f'{input_data}/song_data/*/*/*/*.json'
 
     # read song data file
-    df = spark.read.format('json').load(song_data)
+    df = spark.read.format('json').load(song_data).dropDuplicates()
 
     # extract columns to create songs table
     songs_df = df.select('song_id', 'title', 'artist_id', 'year', 'duration')
@@ -56,11 +68,21 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    """
+    reads log file, filter the records by `NextSong` action.
+    converts milliseconds into timestamp.
+    fetches dimension specific attributes and insert them into respective table.
+    also fills fact table `songplays`.
+    :param spark: spark session.
+    :param input_data: input data path.
+    :param output_data: output data path.
+    :return: None.
+    """
     # get file path to log data file
     log_data = f'{input_data}/log_data/2018/11/*.json'
 
     # read log data file
-    df = spark.read.json(log_data)
+    df = spark.read.json(log_data).dropDuplicates()
 
     # filter by actions for song plays
     df = df.filter("page='NextSong'")
@@ -132,6 +154,9 @@ def process_log_data(spark, input_data, output_data):
 
 
 def main():
+    """
+    main methon to run pipeline.
+    """
     spark = create_spark_session()
     input_data = "s3a://udacity-dend"
     output_data = "s3a://sparkify-output-data"
